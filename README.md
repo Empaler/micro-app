@@ -1,90 +1,89 @@
 # Movie Database API
 
-A hexagonal architecture REST API for managing a movie collection with a React frontend.
+A domain-based REST API for managing movie and book collections with a React frontend.
 
 ## Features
 
-- **CRUD Operations**: Create, read, update, and delete movies
-- **Movie Fields**: title, year, type (movie/series), resolution (SD/HD/FHD/4K), actors, rating
+- **Movies**: CRUD operations with title, year, type (movie/series), resolution (SD/HD/FHD/4K), actors, rating
+- **Books**: CRUD operations with title, author, release year, rating
 - **Business Rules**:
-  - Adult content is not allowed
-  - Year must be between 1888 and current year
+  - Adult content not allowed for movies
+  - Year must be valid (1888-current for movies, 1000-current for books)
   - Rating must be between 0 and 10
-  - Valid type and resolution values
 
 ## Architecture
 
+Domain-based structure (simplified hexagonal architecture):
+
+- Each domain (movies, books) is self-contained
+- Contains entity, service, adapter, and router in one package
+- Shared interfaces in `domain/` package
+- No strict layer separation - simpler but functional
+
 ```
-├── cmd/api/                 # Application entry point
-├── internal/
-│   ├── domain/             # Business logic
-│   │   ├── entity/        # Movie entity with validation
-│   │   └── service/       # Movie service (use cases)
-│   ├── port/              # Interfaces
-│   │   ├── http/          # HTTP handler interface
-│   │   └── storage/       # Repository interface
-│   ├── adapter/           # Implementations
-│   │   ├── http/gin/     # Gin HTTP router
-│   │   └── storage/postgres/  # PostgreSQL adapter
-│   └── config/            # Configuration
-├── tests/
-│   ├── integration/       # Testcontainer integration tests
-│   └── mocks/             # Mock implementations
-└── frontend/             # React + Vite frontend
+internal/
+  domain/              # Shared interfaces (Repository[T])
+  movies/              # Movie domain (entity, service, adapter, router, tests)
+  books/               # Book domain (entity, service, adapter, router, tests)
+  config/              # Configuration
+  db/                  # Database connection and migrations
+  server/              # HTTP server with graceful shutdown
 ```
 
 ## Tech Stack
 
-- **Backend**: Go 1.21+, Gin, GORM, PostgreSQL
-- **Frontend**: React 18, Vite, Axios
+- **Backend**: Go, Gin, PostgreSQL, golang-migrate
+- **Frontend**: React, Vite, Axios
 - **Testing**: Go testing, testcontainers-go, testify
 
 ## Quick Start
 
-### With Docker Compose
+### Docker Compose
 
 ```bash
 docker-compose up --build
 ```
 
 Services:
-- Frontend: http://localhost:80
-- API: http://localhost:8080/api/movies
+- Frontend: http://localhost
+- API: http://localhost:8080
 - Swagger: http://localhost:8080/swagger/index.html
 - PostgreSQL: localhost:5432
 
-### Local Development
+## Configuration
 
-**Prerequisites:**
-- Go 1.21+
-- Node.js 18+
-- PostgreSQL 15
+Create a `.env` file based on `.env.example`:
 
-**Backend:**
-```bash
-# Create database
-createdb movies
-
-# Run API
-go run cmd/api/main.go
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=movies
+SERVER_PORT=8080
 ```
 
-**Frontend:**
-```bash
-cd frontend
-npm install
-npm run dev
-```
+Environment variables take precedence over .env file values.
 
 ## API Endpoints
 
-| Method | Endpoint      | Description           |
-|--------|---------------|-----------------------|
-| GET    | /api/movies   | List all movies       |
-| GET    | /api/movies/:id | Get movie by ID    |
-| POST   | /api/movies   | Create new movie     |
-| PUT    | /api/movies/:id | Update movie       |
-| DELETE | /api/movies/:id | Delete movie       |
+### Movies
+| Method | Endpoint         | Description                |
+|--------|------------------|----------------------------|
+| GET    | /api/movies      | List all movies            |
+| GET    | /api/movies/:id  | Get movie by ID            |
+| POST   | /api/movies      | Create a new movie        |
+| PUT    | /api/movies/:id  | Update an existing movie  |
+| DELETE | /api/movies/:id  | Delete a movie            |
+
+### Books
+| Method | Endpoint         | Description                |
+|--------|------------------|----------------------------|
+| GET    | /api/books       | List all books            |
+| GET    | /api/books/:id   | Get book by ID            |
+| POST   | /api/books       | Create a new book        |
+| PUT    | /api/books/:id   | Update an existing book  |
+| DELETE | /api/books/:id   | Delete a book            |
 
 ### Example Request
 
@@ -96,29 +95,36 @@ curl -X POST http://localhost:8080/api/movies \
     "year": 1999,
     "type": "movie",
     "resolution": "FHD",
-    "actors": "Keanu Reeves, Laurence Fishburne",
-    "rating": 8.7,
-    "isAdult": false
+    "actors": "Keanu Reeves",
+    "rating": 8.7
   }'
 ```
 
 ## Testing
 
 ```bash
-# Unit tests
-go test ./internal/... -v
+# Unit tests (fast)
+go test ./... -short
 
-# Integration tests (requires Docker)
-go test ./tests/integration/... -v
-
-# All tests
+# All tests including integration (requires Docker)
 go test ./... -v
 ```
 
-## VS Code
+## Commands
 
-Open the project in VS Code and use the debug configurations in `.vscode/launch.json`:
+```bash
+# Run API
+go run cmd/api/main.go
 
-- **Launch API** - Run the backend server
-- **Test: Unit Tests** - Run unit tests
-- **Test: Integration Tests** - Run testcontainer tests
+# Build
+go build -o bin/api.exe ./cmd/api
+
+# Run migrations
+migrate -path migrations -database "postgres://..." up
+
+# Generate Swagger docs
+swag init -g cmd/api/main.go -o docs
+
+# Docker
+docker-compose up --build
+```

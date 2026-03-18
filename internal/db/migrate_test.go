@@ -43,7 +43,7 @@ func TestMigrate(t *testing.T) {
 		DBName:     dbName,
 	}
 
-	time.Sleep(2 * time.Second)
+	time.Sleep(3 * time.Second)
 
 	db, err := connect(cfg)
 	require.NoError(t, err)
@@ -56,9 +56,9 @@ func TestMigrate(t *testing.T) {
 		require.NoError(t, err)
 
 		var count int
-		err = db.GetContext(ctx, &count, "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public'")
+		err = db.GetContext(ctx, &count, "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public' AND tablename != 'schema_migrations'")
 		require.NoError(t, err)
-		require.GreaterOrEqual(t, count, 2, "should have at least 2 tables (movies and books)")
+		require.Equal(t, 2, count, "should have 2 tables (movies and books)")
 	})
 
 	t.Run("migrate down drops all tables", func(t *testing.T) {
@@ -66,7 +66,7 @@ func TestMigrate(t *testing.T) {
 		require.NoError(t, err)
 
 		var count int
-		err = db.GetContext(ctx, &count, "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public'")
+		err = db.GetContext(ctx, &count, "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public' AND tablename != 'schema_migrations'")
 		require.NoError(t, err)
 		require.Equal(t, 0, count, "all tables should be dropped")
 	})

@@ -70,7 +70,7 @@ func MigrateDown(cfg *config.Config, migrationsPath string) error {
 	count := 0
 	for {
 		count++
-		if err := m.Down(); err != nil {
+		if err := m.Steps(-1); err != nil {
 			if err == migrate.ErrNoChange {
 				log.Printf("Ran %d down migrations", count-1)
 				break
@@ -79,6 +79,9 @@ func MigrateDown(cfg *config.Config, migrationsPath string) error {
 		}
 		version, _, _ = m.Version()
 		log.Printf("After down migration %d, version: %d", count, version)
+		if version == 0 {
+			break
+		}
 	}
 	log.Println("Rollback completed successfully")
 	return nil
