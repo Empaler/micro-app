@@ -1,0 +1,57 @@
+.book-card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.book-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.book-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.book-card-header h3 {
+  font-size: 1.25rem;
+  color: #333;
+  flex: 1;
+  margin-right: 10px;
+}
+
+.book-rating {
+  background-color: #ffc107;
+  color: #333;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.book-card-body {
+  margin-bottom: 15px;
+}
+
+.book-card-body p {
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.book-card-body strong {
+  color: #333;
+}
+
+.book-card-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.book-card-actions .btn {
+  flex: 1;
+}

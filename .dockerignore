@@ -1,0 +1,11 @@
+.git
+.gitignore
+.vscode
+node_modules
+dist
+bin
+*.exe
+*.md
+docs
+frontend/node_modules
+frontend/dist
