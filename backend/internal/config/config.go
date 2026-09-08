@@ -11,6 +11,9 @@ type Config struct {
 	DBUser     string
 	DBPassword string
 	DBName     string
+	RedisHost  string
+	RedisPort  string
+	RedisDB    string
 	ServerPort string
 }
 
@@ -23,6 +26,9 @@ func Load() *Config {
 		DBUser:     getEnv("DB_USER", ""),
 		DBPassword: getEnv("DB_PASSWORD", ""),
 		DBName:     getEnv("DB_NAME", ""),
+		RedisHost:  getEnv("REDIS_HOST", "localhost"),
+		RedisPort:  getEnv("REDIS_PORT", "6379"),
+		RedisDB:    getEnv("REDIS_DB", "0"),
 		ServerPort: getEnv("SERVER_PORT", ""),
 	}
 }

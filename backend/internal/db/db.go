@@ -3,6 +3,8 @@ package db
 import (
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 
 	"movie-api/internal/config"
 
@@ -14,7 +16,20 @@ import (
 )
 
 func New(cfg *config.Config) (*sqlx.DB, error) {
-	return NewWithMigrations(cfg, "migrations")
+	return NewWithMigrations(cfg, defaultMigrationsPath())
+}
+
+func defaultMigrationsPath() string {
+	if _, err := os.Stat("migrations"); err == nil {
+		return "migrations"
+	}
+
+	backendMigrationsPath := filepath.Join("backend", "migrations")
+	if _, err := os.Stat(backendMigrationsPath); err == nil {
+		return backendMigrationsPath
+	}
+
+	return "migrations"
 }
 
 func NewWithMigrations(cfg *config.Config, migrationsPath string) (*sqlx.DB, error) {

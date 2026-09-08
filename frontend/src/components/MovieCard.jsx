@@ -1,6 +1,6 @@
 import './MovieCard.css';
 
-function MovieCard({ movie, onEdit, onDelete }) {
+function MovieCard({ movie, onView, onEdit, onDelete }) {
   return (
     <div className="movie-card">
       <div className="movie-card-header">
@@ -14,6 +14,7 @@ function MovieCard({ movie, onEdit, onDelete }) {
         {movie.actors && <p><strong>Actors:</strong> {movie.actors}</p>}
       </div>
       <div className="movie-card-actions">
+        <button className="btn btn-primary" onClick={onView}>View Details</button>
         <button className="btn btn-secondary" onClick={onEdit}>Edit</button>
         <button className="btn btn-danger" onClick={onDelete}>Delete</button>
       </div>

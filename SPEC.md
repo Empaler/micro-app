@@ -12,10 +12,11 @@
 ### Domain-Based Structure
 
 ```
-cmd/
+backend/
+  cmd/
   api/
     main.go                    # Entry point - only calls initialization
-internal/
+  internal/
   domain/
     repository.go              # Generic Repository[T] interface
   config/
@@ -37,11 +38,11 @@ internal/
     postgres_adapter.go        # PostgreSQL implementation
     router.go                  # HTTP handlers with Swagger annotations
     *_test.go                 # Unit and integration tests
-frontend/                     # React + Vite application
-migrations/
+  migrations/
   *_up.sql                   # Up migrations
   *_down.sql                 # Down migrations
-docs/                         # Swagger docs
+  docs/                         # Swagger docs
+frontend/                     # React + Vite application
 ```
 
 ## 3. API Endpoints
@@ -103,6 +104,8 @@ type Repository[T any] interface {
 
 ### Commands
 ```bash
+cd backend
+
 # Unit tests only
 go test ./... -short
 
@@ -118,6 +121,8 @@ go test ./internal/db/... -v
 ## 7. Commands
 
 ```bash
+cd backend
+
 # Run API
 go run cmd/api/main.go
 
@@ -127,15 +132,13 @@ go build -o bin/api.exe ./cmd/api
 # Generate Swagger docs
 swag init -g cmd/api/main.go -o docs
 
-# Docker
-docker-compose up --build
-docker-compose up -d
+# Development database and Redis only
+docker compose -f docker-compose.dev.yml up -d
 
-# Logs
-docker-compose logs -f
-
-# Stop
-docker-compose down
+# Full Docker stack
+docker compose up --build
+docker compose logs -f
+docker compose down
 ```
 
 ## 8. Configuration

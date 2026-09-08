@@ -1,4 +1,3 @@
-basePath: /
 definitions:
   books.Book:
     properties:
@@ -60,12 +59,8 @@ definitions:
     - ResolutionHD
     - ResolutionFHD
     - Resolution4K
-host: localhost:8080
 info:
   contact: {}
-  description: Movie and Book collection management API
-  title: Movie API
-  version: "1.0"
 paths:
   /api/books:
     get:
@@ -192,6 +187,21 @@ paths:
       summary: Update a book
       tags:
       - books
+  /api/books/most-looked-up:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get the most looked up books
+      tags:
+      - books
   /api/movies:
     get:
       consumes:
@@ -315,6 +325,21 @@ paths:
             additionalProperties: true
             type: object
       summary: Update a movie
+      tags:
+      - movies
+  /api/movies/most-looked-up:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get the most looked up movies
       tags:
       - movies
 swagger: "2.0"

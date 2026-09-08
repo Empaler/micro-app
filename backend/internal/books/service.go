@@ -10,10 +10,10 @@ import (
 var ErrBookNotFound = errors.New("book not found")
 
 type BookService struct {
-	repo shared.Repository[Book]
+	repo domain.Repository[Book]
 }
 
-func NewBookService(repo shared.Repository[Book]) *BookService {
+func NewBookService(repo domain.Repository[Book]) *BookService {
 	return &BookService{repo: repo}
 }
 

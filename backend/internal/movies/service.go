@@ -10,10 +10,10 @@ import (
 var ErrMovieNotFound = errors.New("movie not found")
 
 type MovieService struct {
-	repo shared.Repository[Movie]
+	repo domain.Repository[Movie]
 }
 
-func NewMovieService(repo shared.Repository[Movie]) *MovieService {
+func NewMovieService(repo domain.Repository[Movie]) *MovieService {
 	return &MovieService{repo: repo}
 }
 

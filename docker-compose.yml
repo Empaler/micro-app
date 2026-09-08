@@ -11,15 +11,29 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: movie-redis
+    ports:
+      - "6379:6379"
+    command: [ "redis-server", "--appendonly", "yes" ]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 5s
       retries: 5
 
   backend:
     build:
-      context: .
-      dockerfile: backend.Dockerfile
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: movie-api
     ports:
       - "8080:8080"
@@ -29,9 +43,14 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: movies
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
       SERVER_PORT: 8080
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   frontend:
@@ -46,3 +65,4 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:

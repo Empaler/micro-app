@@ -4,6 +4,8 @@
 
 ### Backend (Go)
 ```bash
+cd backend
+
 # Run the API locally (requires PostgreSQL running)
 go run cmd/api/main.go
 
@@ -37,10 +39,17 @@ npm run dev
 npm run build
 ```
 
+### Exercises (Go)
+```bash
+cd exercises
+go test ./...
+```
+
 ### Database
 ```bash
 # Run migrations (automatic on startup)
 # Manual migration command:
+cd backend
 migrate -path migrations -database "postgres://user:pass@localhost:5432/db?sslmode=disable" up
 
 # Rollback migrations
@@ -50,21 +59,27 @@ migrate -path migrations -database "postgres://user:pass@localhost:5432/db?sslmo
 ## Docker
 
 ```bash
-# Build and run all services
-docker-compose up --build
+# Start database and Redis for local development
+docker compose -f docker-compose.dev.yml up -d
+
+# Build and run all services in Docker
+docker compose up --build
 
 # Run in detached mode
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Stop all services
-docker-compose down
+docker compose down
+
+# Stop development database and Redis
+docker compose -f docker-compose.dev.yml down
 
 # Rebuild a specific service
-docker-compose build backend
-docker-compose build frontend
+docker compose build backend
+docker compose build frontend
 ```
 
 ## Ports
@@ -86,13 +101,9 @@ docker-compose build frontend
 
 ## Adding New Entities
 
-1. Create entity in `internal/domain/entity/{name}.go`
-2. Create service in `internal/domain/service/{name}_service.go`
-3. Create repository port in `internal/port/storage/{name}_repo.go`
-4. Create adapter in `internal/adapter/storage/postgresadapter/{name}_adapter.go`
-5. Create HTTP handler in `internal/adapter/http/ginhandler/{name}_router.go`
-6. Add route registration in `main.go`
-7. Add migration file in `migrations/`
+1. Create the entity, service, adapter, router, and tests in `backend/internal/{name}/`
+2. Add route registration in `backend/internal/server/server.go`
+3. Add migration file in `backend/migrations/`
 8. Add Swagger annotations to handler
-9. Regenerate docs: `swag init -g cmd/api/main.go -o docs`
+9. Regenerate docs from `backend/`: `swag init -g cmd/api/main.go -o docs`
 10. Add frontend components if needed

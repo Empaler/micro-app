@@ -11,6 +11,7 @@ import (
 
 	"movie-api/internal/books"
 	"movie-api/internal/movies"
+	"movie-api/internal/redisclient"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
@@ -23,13 +24,13 @@ type Server struct {
 	server *http.Server
 }
 
-func New(port string, db *sqlx.DB) *Server {
+func New(port string, db *sqlx.DB, redisClient *redisclient.Client) *Server {
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.New()
 	engine.Use(gin.Recovery())
 
-	movies.RegisterRoutes(engine, db)
-	books.RegisterRoutes(engine, db)
+	movies.RegisterRoutes(engine, db, redisClient)
+	books.RegisterRoutes(engine, db, redisClient)
 
 	return &Server{
 		engine: engine,

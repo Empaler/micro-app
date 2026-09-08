@@ -4,18 +4,21 @@ import (
 	"net/http"
 	"strconv"
 
+	"movie-api/internal/redisclient"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 )
 
 type Router struct {
 	service *MovieService
+	redis   *redisclient.Client
 }
 
-func RegisterRoutes(g *gin.Engine, db *sqlx.DB) {
+func RegisterRoutes(g *gin.Engine, db *sqlx.DB, redisClient *redisclient.Client) {
 	adapter := NewPostgresAdapter(db)
 	service := NewMovieService(adapter)
-	router := &Router{service: service}
+	router := &Router{service: service, redis: redisClient}
 	router.registerRoutes(g)
 }
 
@@ -24,6 +27,7 @@ func (r *Router) registerRoutes(g *gin.Engine) {
 	{
 		api.GET("/movies", r.listMovies)
 		api.GET("/movies/:id", r.getMovie)
+		api.GET("/movies/most-looked-up", r.mostLookedUpMovies)
 		api.POST("/movies", r.createMovie)
 		api.PUT("/movies/:id", r.updateMovie)
 		api.DELETE("/movies/:id", r.deleteMovie)
@@ -70,7 +74,32 @@ func (r *Router) getMovie(c *gin.Context) {
 		return
 	}
 
+	if r.redis != nil {
+		_ = r.redis.IncrementLookups(c.Request.Context(), "movies", id)
+	}
+
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": movie})
+}
+
+// @Summary Get the most looked up movies
+// @Tags movies
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Router /api/movies/most-looked-up [get]
+func (r *Router) mostLookedUpMovies(c *gin.Context) {
+	if r.redis == nil {
+		c.JSON(http.StatusOK, gin.H{"success": true, "data": []redisclient.PopularItem{}})
+		return
+	}
+
+	items, err := r.redis.GetTopLookedUp(c.Request.Context(), "movies", 10)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": items})
 }
 
 // @Summary Create a new movie

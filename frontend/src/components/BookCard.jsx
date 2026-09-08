@@ -1,6 +1,6 @@
 import './BookCard.css';
 
-function BookCard({ book, onEdit, onDelete }) {
+function BookCard({ book, onView, onEdit, onDelete }) {
   return (
     <div className="book-card">
       <div className="book-card-header">
@@ -12,6 +12,7 @@ function BookCard({ book, onEdit, onDelete }) {
         <p><strong>Release Year:</strong> {book.releaseYear}</p>
       </div>
       <div className="book-card-actions">
+        <button className="btn btn-primary" onClick={onView}>View Details</button>
         <button className="btn btn-secondary" onClick={onEdit}>Edit</button>
         <button className="btn btn-danger" onClick={onDelete}>Delete</button>
       </div>
